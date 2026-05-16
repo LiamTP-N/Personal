@@ -162,6 +162,25 @@
         .hr-badge-you{background:rgba(34,197,94,0.20);border-color:rgba(34,197,94,0.30);}
         .hr-badge-you .hr-icon{color:#4ade80;}
         .hr-badge-you .hr-bpm-text{color:#86efac;}
+        /* HR connect buttons gently pulse outward until paired, as a reminder.
+           The :not(.hr-connected) selector silences the animation the moment
+           setupDevice()/updateHrTrackConnUI() flips that class on successful pair.
+           Liam-side glows green, Ash-side glows purple - matching person colours. */
+        @keyframes hr-prompt-green{
+            0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.55);}
+            70%    {box-shadow:0 0 0 7px rgba(34,197,94,0);}
+        }
+        @keyframes hr-prompt-purple{
+            0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,0.55);}
+            70%    {box-shadow:0 0 0 7px rgba(168,85,247,0);}
+        }
+        #btn-hr-you:not(.hr-connected),
+        #btn-hr-you-track:not(.hr-connected){animation:hr-prompt-green 1.8s ease-in-out infinite;}
+        #btn-hr-wife:not(.hr-connected),
+        #btn-hr-wife-track:not(.hr-connected){animation:hr-prompt-purple 1.8s ease-in-out infinite;}
+        /* Ash's HR-connected indication mirrors Liam's rule above. */
+        #btn-hr-wife.hr-connected,
+        #btn-hr-wife-track.hr-connected{border-color:rgba(168,85,247,0.60);}
         .hidden{display:none !important;}
         #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
         @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
@@ -424,8 +443,8 @@
                 <p class="text-purple-200 text-sm mt-1 leading-snug">I love YOU!<br>I'm so proud of you, now go smash it!</p>
             </div>
             <div class="space-y-4">
-                <button id="btn-home-boxing" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-green-500/30"><div class="w-16 h-16 rounded-2xl bg-green-600/20 border border-green-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M7 4h6a3 3 0 0 1 3 3v3h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1v3a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-3a4 4 0 0 1-2-3v-4a4 4 0 0 1 3-4z"/><path d="M6 15h10"/></svg></div><span class="text-3xl font-bold text-white">Boxing</span></button>
-                <button id="btn-home-gym" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-blue-500/30"><div class="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h4v12H4zM16 6h4v12h-4zM8 11h8v2H8z"/></svg></div><span class="text-3xl font-bold text-white">Gym</span></button>
+                <button id="btn-home-boxing" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-green-500/30"><div class="w-16 h-16 rounded-2xl bg-green-600/20 border border-green-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M7 4h6a3 3 0 0 1 3 3v3h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1v3a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-3a4 4 0 0 1-2-3v-4a4 4 0 0 1 3-4z"/><path d="M6 15h10"/></svg></div><span class="text-3xl font-bold text-white">Boxing</span></button>
+                <button id="btn-home-gym" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-blue-500/30"><div class="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12.409 13.017A5 5 0 0 1 22 15c0 3.86-2.611 5-6 5-2.293 0-3.787-.503-5.486-2.357l-.81-.875A5.95 5.95 0 0 1 6 14H4a2 2 0 0 1-2-2c0-1.106.894-1.962 2-2.085A11 11 0 0 1 8 9c.4-1.05 1.467-2.5 4-2.5 1 0 1.5.5 2 1l3.5 5"/><path d="M15 14a5 5 0 0 0-7.584 2"/><path d="M9.964 6.825C8.019 7.977 9.5 13 8 15"/></svg></div><span class="text-3xl font-bold text-white">Gym</span></button>
                 <button id="btn-home-hr" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-red-500/30"><div class="w-16 h-16 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-red-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div><span class="text-3xl font-bold text-white text-left">Track Heart Rate</span></button>
                 <button id="btn-home-prev" class="hidden home-btn w-full glass-card p-5 rounded-[2rem] flex items-center space-x-6 hover:border-orange-500/30"><div class="w-12 h-12 rounded-2xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6M3 10l6-6"/></svg></div><div class="flex flex-col items-start"><span class="text-xl font-bold text-white">Previous Session</span><span class="text-xs text-slate-400">HR summary from your last session</span></div></button>
             </div>
@@ -493,8 +512,8 @@
             </div>
             <!-- Start/Stop + Back. -->
             <div class="space-y-2">
-                <button id="btn-hr-track-start" class="w-full py-4 rounded-2xl bg-green-600 hover:bg-green-500 text-white font-bold text-lg active:scale-[0.98] transition-all">Start Recording</button>
-                <button id="btn-hr-track-stop" class="hidden w-full py-4 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold text-lg active:scale-[0.98] transition-all">Stop &amp; Save</button>
+                <button id="btn-hr-track-start" class="w-full py-4 rounded-2xl bg-green-600/20 hover:bg-green-600/30 border border-green-500/40 text-white font-bold text-lg active:scale-[0.98] transition-all">Start Recording</button>
+                <button id="btn-hr-track-stop" class="hidden w-full py-4 rounded-2xl bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-white font-bold text-lg active:scale-[0.98] transition-all">Stop &amp; Save</button>
                 <button id="btn-hr-track-back" class="w-full py-3 rounded-xl text-sm font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; Back</button>
             </div>
         </div>
@@ -526,16 +545,16 @@
                 <div class="gym-rest-right flex flex-col flex-1 min-w-0 relative">
                     <div class="gym-rest-picks flex"><button class="gym-rest-pick gym-rest-pick-btn active rounded-lg font-bold" data-secs="60">60s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold" data-secs="90">90s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold" data-secs="120">120s</button></div>
                     <div class="gym-rest-actions flex">
-                        <button id="btn-gym-rest-start" class="gym-rest-go flex-1 bg-green-700 hover:bg-green-600 text-white font-bold active:scale-[0.98] transition-all">Start Timer</button>
-                        <button id="btn-gym-rest-pause" class="gym-rest-go hidden flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold active:scale-[0.98] transition-all">Pause</button>
-                        <button id="btn-gym-rest-reset" class="gym-rest-go hidden flex-1 bg-red-600 hover:bg-red-500 text-white font-bold active:scale-[0.98] transition-all">Reset Timer</button>
+                        <button id="btn-gym-rest-start" class="gym-rest-go flex-1 bg-green-600/20 hover:bg-green-600/30 border border-green-500/40 text-white font-bold active:scale-[0.98] transition-all">Start Timer</button>
+                        <button id="btn-gym-rest-pause" class="gym-rest-go hidden flex-1 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/40 text-white font-bold active:scale-[0.98] transition-all">Pause</button>
+                        <button id="btn-gym-rest-reset" class="gym-rest-go hidden flex-1 bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-white font-bold active:scale-[0.98] transition-all">Reset Timer</button>
                     </div>
                 </div>
             </div>
             <!-- Exercise list. -->
             <div class="gym-list glass-card" id="gym-exercise-list"></div>
             <!-- Shuffle button. -->
-            <button id="btn-gym-shuffle" class="gym-shuffle-btn w-full bg-orange-700 hover:bg-orange-600 text-white font-bold active:scale-[0.98] transition-all">Shuffle Exercises</button>
+            <button id="btn-gym-shuffle" class="gym-shuffle-btn w-full bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/40 text-white font-bold active:scale-[0.98] transition-all">Shuffle Exercises</button>
             <!-- Back button full-width bar. -->
             <button id="btn-gym-workout-back" class="gym-back-btn w-full font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; Back</button>
         </div>
@@ -741,8 +760,8 @@
                  the JS in case the buttons return later, but there's no visible
                  entry point. -->
             <div class="mt-1.5 flex-shrink-0">
-                <button id="btn-advanced-toggle" type="button" class="hidden w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all"><span>Advanced</span> <span id="advanced-summary" class="opacity-70 text-[10px] font-mono-display">Random</span></button>
-                <button id="btn-start" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-lg sm:text-2xl active:scale-[0.98] transition-all">Begin Session</button>
+                <button id="btn-advanced-toggle" type="button" class="hidden w-full bg-slate-600/20 hover:bg-slate-600/30 border border-slate-500/40 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all"><span>Advanced</span> <span id="advanced-summary" class="opacity-70 text-[10px] font-mono-display">Random</span></button>
+                <button id="btn-start" class="w-full bg-green-600/20 hover:bg-green-600/30 border border-green-500/40 text-white font-bold py-3 rounded-2xl text-lg sm:text-2xl active:scale-[0.98] transition-all">Begin Session</button>
             </div>
             <button id="btn-boxing-back" class="w-full py-1.5 rounded-xl text-xs font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98] flex-shrink-0 mt-1.5">&larr; Back</button>
         </div>
@@ -852,11 +871,11 @@
             <div class="text-3xl mb-3">&#x1F494;</div>
             <p id="hr-modal-title" class="text-white text-base mb-5"><span class="font-bold">IMPORTANT:</span><br>No HR Monitor Connected!?</p>
             <div class="flex gap-3">
-                <button id="hr-modal-cancel" class="flex-1 flex flex-col items-center justify-center py-4 rounded-xl text-base font-bold bg-green-600 hover:bg-green-500 text-white transition">
+                <button id="hr-modal-cancel" class="flex-1 flex flex-col items-center justify-center py-4 rounded-xl text-base font-bold bg-green-600/20 hover:bg-green-600/30 border border-green-500/40 text-white transition">
                     <span>Go Back</span>
                     <span>&#x1F600;</span>
                 </button>
-                <button id="hr-modal-confirm" class="flex-1 flex flex-col items-center justify-center py-4 rounded-xl text-base font-bold bg-red-600 hover:bg-red-500 text-white transition">
+                <button id="hr-modal-confirm" class="flex-1 flex flex-col items-center justify-center py-4 rounded-xl text-base font-bold bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-white transition">
                     <span>Start Anyway</span>
                     <span>&#x1F622;</span>
                 </button>
@@ -868,8 +887,8 @@
             <div class="text-3xl mb-3">&#x1F62D;</div>
             <p id="ash-hr-modal-title" class="text-white font-bold text-base mb-5">Note:<br>No HR monitor? But Liam's HR...</p>
             <div class="flex gap-3">
-                <button id="ash-hr-modal-cancel" class="flex-1 py-4 rounded-xl text-base font-bold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition">Go Back</button>
-                <button id="ash-hr-modal-confirm" class="flex-1 py-4 rounded-xl text-base font-bold bg-green-600 hover:bg-green-500 text-white transition">Start Anyway</button>
+                <button id="ash-hr-modal-cancel" class="flex-1 py-4 rounded-xl text-base font-bold bg-slate-600/20 hover:bg-slate-600/30 border border-slate-500/40 text-white transition">Go Back</button>
+                <button id="ash-hr-modal-confirm" class="flex-1 py-4 rounded-xl text-base font-bold bg-green-600/20 hover:bg-green-600/30 border border-green-500/40 text-white transition">Start Anyway</button>
             </div>
         </div>
     </div>
@@ -882,7 +901,7 @@
                 <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-center">Round Length</p><div class="grid grid-cols-3 gap-1" id="finisher-work-row"><button class="finisher-sel py-1.5 rounded-lg text-xs font-bold bg-orange-600 border border-orange-500 text-white" data-val="30">30s</button><button class="finisher-sel py-1.5 rounded-lg text-xs font-bold bg-slate-700/50 border border-slate-600 text-slate-300" data-val="45">45s</button><button class="finisher-sel py-1.5 rounded-lg text-xs font-bold bg-slate-700/50 border border-slate-600 text-slate-300" data-val="60">60s</button></div></div>
                 <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-center">Recovery</p><div class="grid grid-cols-4 gap-1" id="finisher-rest-row"><button class="finisher-sel py-1.5 rounded-lg text-xs font-bold bg-slate-700/50 border border-slate-600 text-slate-300" data-val="15">15s</button><button class="finisher-sel py-1.5 rounded-lg text-xs font-bold bg-orange-600 border border-orange-500 text-white" data-val="30">30s</button><button class="finisher-sel py-1.5 rounded-lg text-xs font-bold bg-slate-700/50 border border-slate-600 text-slate-300" data-val="45">45s</button><button class="finisher-sel py-1.5 rounded-lg text-xs font-bold bg-slate-700/50 border border-slate-600 text-slate-300" data-val="60">60s</button></div></div>
             </div>
-            <div class="grid grid-cols-2 gap-2 pt-1"><button id="finisher-no" class="py-3 rounded-xl font-bold border border-slate-600 text-slate-300 active:scale-[0.98] transition-all">No thanks</button><button id="finisher-yes" class="py-3 rounded-xl font-bold bg-orange-600 hover:bg-orange-500 text-white active:scale-[0.98] transition-all">Let's go!</button></div>
+            <div class="grid grid-cols-2 gap-2 pt-1"><button id="finisher-no" class="py-3 rounded-xl font-bold bg-slate-600/20 hover:bg-slate-600/30 border border-slate-500/40 text-white active:scale-[0.98] transition-all">No thanks</button><button id="finisher-yes" class="py-3 rounded-xl font-bold bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/40 text-white active:scale-[0.98] transition-all">Let's go!</button></div>
         </div>
     </div>
     <!-- BLE DISCONNECT TOAST -->
@@ -1279,7 +1298,7 @@
             const nm=device.name?device.name.substring(0,12):'Connected';
             ch.addEventListener('characteristicvaluechanged',e=>onHRReading(who,parseHR(e.target.value)));
             if(who==='you'){hrDeviceYou=device;hrCharYou=ch;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.add('hr-connected');}
-            else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.add('border-purple-500/60');}
+            else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.add('hr-connected');}
             // Sync HR-track screen UI (no-op if those elements not yet wired).
             if(typeof updateHrTrackConnUI==='function')updateHrTrackConnUI();
             // Row labels swap between generic / Liam / Ash forms based on HR state;
@@ -1292,7 +1311,7 @@
                 for(let a=0;a<3;a++){try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}}
                 // All retries failed: clear state and notify via toast.
                 if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.remove('hr-connected');hrYouBpm.innerText='--';}
-                else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}
+                else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.remove('hr-connected');hrWifeBpm.innerText='--';}
                 if(typeof updateHrTrackConnUI==='function')updateHrTrackConnUI();
                 if(typeof updateRowLabels==='function')updateRowLabels();
                 if(typeof updateSoloIdentity==='function')updateSoloIdentity();
@@ -1902,12 +1921,12 @@
             // Pause button label and colour toggle between Pause (orange) and Resume (green).
             if(gymRestPaused){
                 btnGymRestPause.innerText='Resume';
-                btnGymRestPause.classList.remove('bg-orange-600','hover:bg-orange-500');
-                btnGymRestPause.classList.add('bg-green-700','hover:bg-green-600');
+                btnGymRestPause.classList.remove('bg-orange-600/20','hover:bg-orange-600/30','border-orange-500/40');
+                btnGymRestPause.classList.add('bg-green-600/20','hover:bg-green-600/30','border-green-500/40');
             }else{
                 btnGymRestPause.innerText='Pause';
-                btnGymRestPause.classList.remove('bg-green-700','hover:bg-green-600');
-                btnGymRestPause.classList.add('bg-orange-600','hover:bg-orange-500');
+                btnGymRestPause.classList.remove('bg-green-600/20','hover:bg-green-600/30','border-green-500/40');
+                btnGymRestPause.classList.add('bg-orange-600/20','hover:bg-orange-600/30','border-orange-500/40');
             }
         }
 
@@ -2071,7 +2090,7 @@
             hrWifeLabelTrack.innerText=wifeConn?(hrValueWife?"Ash's HR ("+hrValueWife+")":"Ash's HR"):"Ash's HR";
             // Border tint when connected.
             btnHrYouTrack.classList.toggle('hr-connected',!!youConn);
-            btnHrWifeTrack.classList.toggle('border-purple-500/60',!!wifeConn);
+            btnHrWifeTrack.classList.toggle('hr-connected',!!wifeConn);
             // Live badges visible only when connected.
             hrTrackLiveYou.classList.toggle('hidden',!youConn);
             hrTrackLiveWife.classList.toggle('hidden',!wifeConn);
@@ -4263,7 +4282,9 @@
                     document.body.classList.add('user-ash');
                     const greeting=document.getElementById('ash-greeting');
                     if(greeting)greeting.classList.remove('hidden');
-                    // Boxing card: tint full card body plus the icon badge purple.
+                    // Boxing card: tint the body and the icon badge purple. The SVG
+                    // glove stays red - red boxing gloves are the iconic colour and
+                    // they pop against the purple badge.
                     const btn=document.getElementById('btn-home-boxing');
                     if(btn){
                         btn.classList.remove('hover:border-green-500/30');
@@ -4275,33 +4296,18 @@
                             iconWrap.classList.remove('bg-green-600/20','border-green-500/30');
                             iconWrap.classList.add('bg-purple-600/20','border-purple-500/30');
                         }
-                        const icon=btn.querySelector('svg');
-                        if(icon){
-                            icon.classList.remove('text-green-400');
-                            icon.classList.add('text-purple-400');
-                        }
                     }
-                    // Gym card: blue is the unidentified default - swap to purple
-                    // so the home screen is wholly her-coded.
-                    const gymBtn=document.getElementById('btn-home-gym');
-                    if(gymBtn){
-                        gymBtn.classList.remove('hover:border-blue-500/30');
-                        gymBtn.classList.add('hover:border-purple-500/30');
-                        gymBtn.style.background='rgba(168,85,247,0.15)';
-                        gymBtn.style.borderColor='rgba(168,85,247,0.4)';
-                        const gymIconWrap=gymBtn.querySelector('div');
-                        if(gymIconWrap){
-                            gymIconWrap.classList.remove('bg-blue-600/20','border-blue-500/30');
-                            gymIconWrap.classList.add('bg-purple-600/20','border-purple-500/30');
-                        }
-                        const gymIcon=gymBtn.querySelector('svg');
-                        if(gymIcon){
-                            gymIcon.classList.remove('text-blue-400');
-                            gymIcon.classList.add('text-purple-400');
-                        }
+                    // Track HR card: badge and icon are already red, but the outer
+                    // card was sitting on the default slate glass. Tint the card body
+                    // red translucent to match the boxing card's intensity.
+                    const hrBtn=document.getElementById('btn-home-hr');
+                    if(hrBtn){
+                        hrBtn.style.background='rgba(239,68,68,0.15)';
+                        hrBtn.style.borderColor='rgba(239,68,68,0.4)';
                     }
-                    // Default the boxing setup to Solo (the Ash-canonical mode).
-                    // setMode also refreshes the Liam-row chrome via updateSoloIdentity.
+                    // Gym card is deliberately left as default blue - three home cards,
+                    // three different colours (purple Boxing, red HR, blue Gym).
+                    // Default the boxing setup to Solo (Ash-canonical mode).
                     if(typeof setMode==='function')setMode('solo');
                 }
                 function revertAshStyling(){
@@ -4319,28 +4325,11 @@
                             iconWrap.classList.remove('bg-purple-600/20','border-purple-500/30');
                             iconWrap.classList.add('bg-green-600/20','border-green-500/30');
                         }
-                        const icon=btn.querySelector('svg');
-                        if(icon){
-                            icon.classList.remove('text-purple-400');
-                            icon.classList.add('text-green-400');
-                        }
                     }
-                    const gymBtn=document.getElementById('btn-home-gym');
-                    if(gymBtn){
-                        gymBtn.classList.remove('hover:border-purple-500/30');
-                        gymBtn.classList.add('hover:border-blue-500/30');
-                        gymBtn.style.background='';
-                        gymBtn.style.borderColor='';
-                        const gymIconWrap=gymBtn.querySelector('div');
-                        if(gymIconWrap){
-                            gymIconWrap.classList.remove('bg-purple-600/20','border-purple-500/30');
-                            gymIconWrap.classList.add('bg-blue-600/20','border-blue-500/30');
-                        }
-                        const gymIcon=gymBtn.querySelector('svg');
-                        if(gymIcon){
-                            gymIcon.classList.remove('text-purple-400');
-                            gymIcon.classList.add('text-blue-400');
-                        }
+                    const hrBtn=document.getElementById('btn-home-hr');
+                    if(hrBtn){
+                        hrBtn.style.background='';
+                        hrBtn.style.borderColor='';
                     }
                     // Back to the default mode for a Liam-tagged or unidentified phone.
                     if(typeof setMode==='function')setMode('wife');
