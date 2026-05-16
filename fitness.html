@@ -162,25 +162,41 @@
         .hr-badge-you{background:rgba(34,197,94,0.20);border-color:rgba(34,197,94,0.30);}
         .hr-badge-you .hr-icon{color:#4ade80;}
         .hr-badge-you .hr-bpm-text{color:#86efac;}
-        /* HR connect buttons gently pulse outward until paired, as a reminder.
-           The :not(.hr-connected) selector silences the animation the moment
-           setupDevice()/updateHrTrackConnUI() flips that class on successful pair.
-           Liam-side glows green, Ash-side glows purple - matching person colours. */
-        @keyframes hr-prompt-green{
-            0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.55);}
-            70%    {box-shadow:0 0 0 7px rgba(34,197,94,0);}
-        }
-        @keyframes hr-prompt-purple{
-            0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,0.55);}
-            70%    {box-shadow:0 0 0 7px rgba(168,85,247,0);}
+        /* HR connect buttons pulse outward red until paired, with a static subtle
+           red infill underneath the outward glow. Same red treatment for both
+           Liam's and Ash's buttons, on both the boxing setup screen and the HR
+           tracking screen, so the visual cue is consistent. The :not(.hr-connected)
+           selector silences both the static fill and the animation as soon as a
+           pair lands - then the per-person .hr-connected rules (green for Liam,
+           purple for Ash) take over. */
+        @keyframes hr-prompt-red-glow{
+            0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.55);}
+            70%    {box-shadow:0 0 0 8px rgba(239,68,68,0);}
         }
         #btn-hr-you:not(.hr-connected),
-        #btn-hr-you-track:not(.hr-connected){animation:hr-prompt-green 1.8s ease-in-out infinite;}
+        #btn-hr-you-track:not(.hr-connected),
         #btn-hr-wife:not(.hr-connected),
-        #btn-hr-wife-track:not(.hr-connected){animation:hr-prompt-purple 1.8s ease-in-out infinite;}
+        #btn-hr-wife-track:not(.hr-connected){
+            background-color:rgba(239,68,68,0.12) !important;
+            border-color:rgba(239,68,68,0.35) !important;
+            animation:hr-prompt-red-glow 1.8s ease-in-out infinite;
+        }
         /* Ash's HR-connected indication mirrors Liam's rule above. */
         #btn-hr-wife.hr-connected,
         #btn-hr-wife-track.hr-connected{border-color:rgba(168,85,247,0.60);}
+        /* IMPORTANT no-HR modal card: slate by default (Liam / unidentified),
+           translucent purple when Ash is the user. The body.user-ash class flips
+           the card style without touching the HTML. */
+        #hr-modal-card{
+            background-color:rgb(30,41,59);
+            border-color:rgb(71,85,105);
+        }
+        body.user-ash #hr-modal-card{
+            background-color:rgba(168,85,247,0.18) !important;
+            border-color:rgba(168,85,247,0.50) !important;
+            backdrop-filter:blur(16px);
+            -webkit-backdrop-filter:blur(16px);
+        }
         .hidden{display:none !important;}
         #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
         @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
@@ -444,7 +460,7 @@
             </div>
             <div class="space-y-4">
                 <button id="btn-home-boxing" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-green-500/30"><div class="w-16 h-16 rounded-2xl bg-green-600/20 border border-green-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M7 4h6a3 3 0 0 1 3 3v3h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1v3a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-3a4 4 0 0 1-2-3v-4a4 4 0 0 1 3-4z"/><path d="M6 15h10"/></svg></div><span class="text-3xl font-bold text-white">Boxing</span></button>
-                <button id="btn-home-gym" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-blue-500/30"><div class="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12.409 13.017A5 5 0 0 1 22 15c0 3.86-2.611 5-6 5-2.293 0-3.787-.503-5.486-2.357l-.81-.875A5.95 5.95 0 0 1 6 14H4a2 2 0 0 1-2-2c0-1.106.894-1.962 2-2.085A11 11 0 0 1 8 9c.4-1.05 1.467-2.5 4-2.5 1 0 1.5.5 2 1l3.5 5"/><path d="M15 14a5 5 0 0 0-7.584 2"/><path d="M9.964 6.825C8.019 7.977 9.5 13 8 15"/></svg></div><span class="text-3xl font-bold text-white">Gym</span></button>
+                <button id="btn-home-gym" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-blue-500/30"><div class="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 6h4v12H4zM16 6h4v12h-4zM8 11h8v2H8z"/></svg></div><span class="text-3xl font-bold text-white">Gym</span></button>
                 <button id="btn-home-hr" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-red-500/30"><div class="w-16 h-16 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-red-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div><span class="text-3xl font-bold text-white text-left">Track Heart Rate</span></button>
                 <button id="btn-home-prev" class="hidden home-btn w-full glass-card p-5 rounded-[2rem] flex items-center space-x-6 hover:border-orange-500/30"><div class="w-12 h-12 rounded-2xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6M3 10l6-6"/></svg></div><div class="flex flex-col items-start"><span class="text-xl font-bold text-white">Previous Session</span><span class="text-xs text-slate-400">HR summary from your last session</span></div></button>
             </div>
@@ -761,7 +777,7 @@
                  entry point. -->
             <div class="mt-1.5 flex-shrink-0">
                 <button id="btn-advanced-toggle" type="button" class="hidden w-full bg-slate-600/20 hover:bg-slate-600/30 border border-slate-500/40 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all"><span>Advanced</span> <span id="advanced-summary" class="opacity-70 text-[10px] font-mono-display">Random</span></button>
-                <button id="btn-start" class="w-full bg-green-600/20 hover:bg-green-600/30 border border-green-500/40 text-white font-bold py-3 rounded-2xl text-lg sm:text-2xl active:scale-[0.98] transition-all">Begin Session</button>
+                <button id="btn-start" class="w-full bg-green-500/50 hover:bg-green-500/60 border border-green-500/60 text-white font-bold py-3 rounded-2xl text-lg sm:text-2xl active:scale-[0.98] transition-all">Begin Session</button>
             </div>
             <button id="btn-boxing-back" class="w-full py-1.5 rounded-xl text-xs font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98] flex-shrink-0 mt-1.5">&larr; Back</button>
         </div>
@@ -867,7 +883,7 @@
     </div>
 	<!-- NO HR MONITOR MODAL -->
     <div id="hr-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6" role="dialog" aria-modal="true" aria-labelledby="hr-modal-title">
-        <div class="bg-purple-800 border border-purple-600 rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl">
+        <div id="hr-modal-card" class="border rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl">
             <div class="text-3xl mb-3">&#x1F494;</div>
             <p id="hr-modal-title" class="text-white text-base mb-5"><span class="font-bold">IMPORTANT:</span><br>No HR Monitor Connected!?</p>
             <div class="flex gap-3">
@@ -4282,31 +4298,21 @@
                     document.body.classList.add('user-ash');
                     const greeting=document.getElementById('ash-greeting');
                     if(greeting)greeting.classList.remove('hidden');
-                    // Boxing card: tint the body and the icon badge purple. The SVG
-                    // glove stays red - red boxing gloves are the iconic colour and
-                    // they pop against the purple badge.
-                    const btn=document.getElementById('btn-home-boxing');
-                    if(btn){
-                        btn.classList.remove('hover:border-green-500/30');
-                        btn.classList.add('hover:border-purple-500/30');
-                        btn.style.background='rgba(168,85,247,0.15)';
-                        btn.style.borderColor='rgba(168,85,247,0.4)';
-                        const iconWrap=btn.querySelector('div');
-                        if(iconWrap){
-                            iconWrap.classList.remove('bg-green-600/20','border-green-500/30');
-                            iconWrap.classList.add('bg-purple-600/20','border-purple-500/30');
-                        }
+                    // Home buttons themselves stay original (green/blue/red).
+                    // Only the small outline icons inside the boxing and gym badges
+                    // recolour to purple - Ash's identity tint, without overloading
+                    // the card chrome. The filled red heart on Track HR stays red
+                    // since red IS the heart-rate identity colour.
+                    const boxingIcon=document.querySelector('#btn-home-boxing svg');
+                    if(boxingIcon){
+                        boxingIcon.classList.remove('text-red-400');
+                        boxingIcon.classList.add('text-purple-400');
                     }
-                    // Track HR card: badge and icon are already red, but the outer
-                    // card was sitting on the default slate glass. Tint the card body
-                    // red translucent to match the boxing card's intensity.
-                    const hrBtn=document.getElementById('btn-home-hr');
-                    if(hrBtn){
-                        hrBtn.style.background='rgba(239,68,68,0.15)';
-                        hrBtn.style.borderColor='rgba(239,68,68,0.4)';
+                    const gymIcon=document.querySelector('#btn-home-gym svg');
+                    if(gymIcon){
+                        gymIcon.classList.remove('text-blue-400');
+                        gymIcon.classList.add('text-purple-400');
                     }
-                    // Gym card is deliberately left as default blue - three home cards,
-                    // three different colours (purple Boxing, red HR, blue Gym).
                     // Default the boxing setup to Solo (Ash-canonical mode).
                     if(typeof setMode==='function')setMode('solo');
                 }
@@ -4314,22 +4320,15 @@
                     document.body.classList.remove('user-ash');
                     const greeting=document.getElementById('ash-greeting');
                     if(greeting)greeting.classList.add('hidden');
-                    const btn=document.getElementById('btn-home-boxing');
-                    if(btn){
-                        btn.classList.remove('hover:border-purple-500/30');
-                        btn.classList.add('hover:border-green-500/30');
-                        btn.style.background='';
-                        btn.style.borderColor='';
-                        const iconWrap=btn.querySelector('div');
-                        if(iconWrap){
-                            iconWrap.classList.remove('bg-purple-600/20','border-purple-500/30');
-                            iconWrap.classList.add('bg-green-600/20','border-green-500/30');
-                        }
+                    const boxingIcon=document.querySelector('#btn-home-boxing svg');
+                    if(boxingIcon){
+                        boxingIcon.classList.remove('text-purple-400');
+                        boxingIcon.classList.add('text-red-400');
                     }
-                    const hrBtn=document.getElementById('btn-home-hr');
-                    if(hrBtn){
-                        hrBtn.style.background='';
-                        hrBtn.style.borderColor='';
+                    const gymIcon=document.querySelector('#btn-home-gym svg');
+                    if(gymIcon){
+                        gymIcon.classList.remove('text-purple-400');
+                        gymIcon.classList.add('text-blue-400');
                     }
                     // Back to the default mode for a Liam-tagged or unidentified phone.
                     if(typeof setMode==='function')setMode('wife');
