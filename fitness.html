@@ -4162,5 +4162,130 @@
             });
         }
     </script>
+    <style>
+        #pwa-install-banner {
+            position: fixed;
+            bottom: max(1rem, env(safe-area-inset-bottom));
+            left: 1rem;
+            right: 1rem;
+            max-width: 480px;
+            margin: 0 auto;
+            z-index: 99999;
+            background: rgba(15, 15, 15, 0.95);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 1rem;
+            padding: 1rem 1.1rem;
+            color: #fff;
+            font-family: 'DM Sans', system-ui, sans-serif;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255,255,255,0.04);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transform: translateY(160%);
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            display: none;
+        }
+        #pwa-install-banner.visible { transform: translateY(0); }
+        #pwa-install-banner .pwa-msg {
+            font-size: 0.92rem;
+            line-height: 1.45;
+            margin-bottom: 0.85rem;
+            color: #e2e8f0;
+        }
+        #pwa-install-banner .pwa-msg strong { color: #c084fc; font-weight: 700; }
+        #pwa-install-banner .pwa-actions { display: flex; gap: 0.5rem; }
+        #pwa-install-banner button {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border-radius: 0.6rem;
+            border: none;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.15s;
+        }
+        #pwa-install-banner button:active { transform: scale(0.97); }
+        #pwa-install-btn { background: #a855f7; color: #fff; }
+        #pwa-install-btn:hover { background: #9333ea; }
+        #pwa-dismiss-btn { background: rgba(255,255,255,0.08); color: #94a3b8; }
+        #pwa-dismiss-btn:hover { background: rgba(255,255,255,0.14); color: #cbd5e1; }
+    </style>
+    <div id="pwa-install-banner" role="dialog" aria-live="polite">
+        <div class="pwa-msg">
+            Bebe! I've made this into an app! Tap <strong>Install</strong> to add it to your home screen - you'll get a proper fullscreen app, it works offline, and you can swap to other apps mid-session without losing your round.
+        </div>
+        <div class="pwa-actions">
+            <button id="pwa-install-btn" type="button">Install</button>
+            <button id="pwa-dismiss-btn" type="button">Later</button>
+        </div>
+    </div>
+    <script>
+        // PWA install banner. Shows on Android/Chrome when the browser fires
+        // beforeinstallprompt; on iOS Safari it shows after a short delay with
+        // manual Share -> Add to Home Screen instructions. Hidden permanently
+        // once dismissed or once the app has been installed.
+        (function() {
+            const DISMISS_KEY = 'pwa-install-dismissed-v1';
+            const banner = document.getElementById('pwa-install-banner');
+            const installBtn = document.getElementById('pwa-install-btn');
+            const dismissBtn = document.getElementById('pwa-dismiss-btn');
+            const msg = banner.querySelector('.pwa-msg');
+
+            // Skip if already running as an installed PWA
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                || window.navigator.standalone === true;
+            if (isStandalone) return;
+
+            // Skip if previously dismissed
+            try { if (localStorage.getItem(DISMISS_KEY)) return; } catch (e) {}
+
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            function showBanner() {
+                banner.style.display = 'block';
+                requestAnimationFrame(() => banner.classList.add('visible'));
+            }
+            function hideBanner(dismissPermanently) {
+                banner.classList.remove('visible');
+                setTimeout(() => { banner.style.display = 'none'; }, 450);
+                if (dismissPermanently) {
+                    try { localStorage.setItem(DISMISS_KEY, '1'); } catch (e) {}
+                }
+            }
+
+            let deferredPrompt = null;
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showBanner();
+            });
+
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const choice = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    if (choice && choice.outcome === 'accepted') hideBanner(true);
+                } else if (isIOS) {
+                    msg.innerHTML = 'Tap the <strong>Share</strong> button at the bottom of Safari, scroll down, then tap <strong>"Add to Home Screen"</strong>.';
+                    installBtn.textContent = 'Got it';
+                    installBtn.onclick = () => hideBanner(true);
+                } else {
+                    msg.innerHTML = 'Open your browser menu and look for <strong>"Install app"</strong> or <strong>"Add to Home Screen"</strong>.';
+                    installBtn.textContent = 'Got it';
+                    installBtn.onclick = () => hideBanner(true);
+                }
+            });
+
+            dismissBtn.addEventListener('click', () => hideBanner(true));
+
+            // iOS Safari never fires beforeinstallprompt, so reveal after a short delay
+            if (isIOS) setTimeout(showBanner, 2500);
+
+            // Hide if installed via the native OS flow
+            window.addEventListener('appinstalled', () => hideBanner(true));
+        })();
+    </script>
 </body>
 </html>
