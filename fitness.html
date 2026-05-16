@@ -1742,7 +1742,14 @@
         }
 
         // Home screen button wiring.
-        document.getElementById('btn-home-boxing').onclick=()=>{showScreen('setup');setMode('wife');};
+        document.getElementById('btn-home-boxing').onclick=()=>{
+            showScreen('setup');
+            // Default to Solo on Ash's phone (she only uses her own phone when
+            // training alone - team sessions always run on Liam's phone), Team
+            // for everyone else.
+            const isAshPhone=(()=>{try{return localStorage.getItem('user')==='ash';}catch(e){return false;}})();
+            setMode(isAshPhone?'solo':'wife');
+        };
         document.getElementById('btn-home-gym').onclick=()=>showScreen('gymDay');
         // HR Tracking: standalone HR-only screen. Reuses BLE plumbing, dedicated session state.
         document.getElementById('btn-home-hr').onclick=()=>{enterHrTrackScreen();};
