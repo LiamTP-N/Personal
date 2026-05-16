@@ -4163,128 +4163,172 @@
         }
     </script>
     <style>
-        #pwa-install-banner {
+        #pwa-install-fab {
             position: fixed;
-            bottom: max(1rem, env(safe-area-inset-bottom));
-            left: 1rem;
-            right: 1rem;
-            max-width: 480px;
-            margin: 0 auto;
-            z-index: 99999;
-            background: rgba(15, 15, 15, 0.95);
-            border: 1px solid rgba(168, 85, 247, 0.4);
-            border-radius: 1rem;
-            padding: 1rem 1.1rem;
+            top: max(0.75rem, env(safe-area-inset-top));
+            right: max(0.75rem, env(safe-area-inset-right));
+            z-index: 99998;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #6d28d9);
+            border: 1px solid rgba(255,255,255,0.25);
             color: #fff;
-            font-family: 'DM Sans', system-ui, sans-serif;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255,255,255,0.04);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            transform: translateY(160%);
-            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
             display: none;
-        }
-        #pwa-install-banner.visible { transform: translateY(0); }
-        #pwa-install-banner .pwa-msg {
-            font-size: 0.92rem;
-            line-height: 1.45;
-            margin-bottom: 0.85rem;
-            color: #e2e8f0;
-        }
-        #pwa-install-banner .pwa-msg strong { color: #c084fc; font-weight: 700; }
-        #pwa-install-banner .pwa-actions { display: flex; gap: 0.5rem; }
-        #pwa-install-banner button {
-            flex: 1;
-            padding: 0.6rem 1rem;
-            border-radius: 0.6rem;
-            border: none;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: transform 0.1s, background 0.15s;
+            padding: 0;
+            transition: transform 0.15s;
+            animation: pwa-pulse 2.4s ease-in-out infinite;
         }
-        #pwa-install-banner button:active { transform: scale(0.97); }
-        #pwa-install-btn { background: #a855f7; color: #fff; }
-        #pwa-install-btn:hover { background: #9333ea; }
-        #pwa-dismiss-btn { background: rgba(255,255,255,0.08); color: #94a3b8; }
-        #pwa-dismiss-btn:hover { background: rgba(255,255,255,0.14); color: #cbd5e1; }
+        #pwa-install-fab.visible { display: flex; }
+        #pwa-install-fab:active { transform: scale(0.92); }
+        #pwa-install-fab svg { width: 22px; height: 22px; }
+        @keyframes pwa-pulse {
+            0%, 100% { box-shadow: 0 4px 14px rgba(168, 85, 247, 0.45), 0 0 0 0 rgba(168, 85, 247, 0.55); }
+            50%      { box-shadow: 0 4px 14px rgba(168, 85, 247, 0.55), 0 0 0 14px rgba(168, 85, 247, 0); }
+        }
+        #pwa-install-callout {
+            position: fixed;
+            top: max(4.4rem, calc(env(safe-area-inset-top) + 3.65rem));
+            right: max(0.75rem, env(safe-area-inset-right));
+            z-index: 99999;
+            max-width: 230px;
+            background: #fff;
+            color: #1e1b4b;
+            padding: 0.65rem 1.9rem 0.7rem 0.85rem;
+            border-radius: 0.8rem;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+            font-family: 'DM Sans', system-ui, sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            line-height: 1.3;
+            display: none;
+            transform: scale(0.85) translateY(-4px);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s;
+        }
+        #pwa-install-callout.visible { display: block; transform: scale(1) translateY(0); opacity: 1; }
+        #pwa-install-callout::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 18px;
+            width: 0;
+            height: 0;
+            border-left: 9px solid transparent;
+            border-right: 9px solid transparent;
+            border-bottom: 9px solid #fff;
+        }
+        #pwa-install-callout .callout-arrow {
+            display: inline-block;
+            margin-right: 0.25rem;
+            color: #a855f7;
+            font-weight: 800;
+            animation: pwa-bounce 1s ease-in-out infinite;
+        }
+        @keyframes pwa-bounce {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-4px); }
+        }
+        #pwa-callout-close {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.06);
+            border: none;
+            color: #64748b;
+            font-size: 1.1rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        #pwa-callout-close:hover { background: rgba(0,0,0,0.12); color: #1e293b; }
     </style>
-    <div id="pwa-install-banner" role="dialog" aria-live="polite">
-        <div class="pwa-msg">
-            Bebe! I've made this into an app! Tap <strong>Install</strong> to add it to your home screen - you'll get a proper fullscreen app, it works offline, and you can swap to other apps mid-session without losing your round.
-        </div>
-        <div class="pwa-actions">
-            <button id="pwa-install-btn" type="button">Install</button>
-            <button id="pwa-dismiss-btn" type="button">Later</button>
-        </div>
+    <button id="pwa-install-fab" type="button" aria-label="Install app">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/>
+        </svg>
+    </button>
+    <div id="pwa-install-callout" role="dialog" aria-live="polite">
+        <button id="pwa-callout-close" type="button" aria-label="Dismiss">&times;</button>
+        <div class="callout-text"><span class="callout-arrow">&uarr;</span>Bebe, click here!</div>
     </div>
     <script>
-        // PWA install banner. Shows on Android/Chrome when the browser fires
-        // beforeinstallprompt; on iOS Safari it shows after a short delay with
-        // manual Share -> Add to Home Screen instructions. Hidden permanently
-        // once dismissed or once the app has been installed.
+        // Small floating install button + one-time "Bebe, click here!" callout.
+        // Both vanish forever once the app is installed. The callout alone can be
+        // dismissed permanently via the close button; the button stays available
+        // until install. Skipped entirely when the page is already running as a
+        // standalone installed PWA.
         (function() {
-            const DISMISS_KEY = 'pwa-install-dismissed-v1';
-            const banner = document.getElementById('pwa-install-banner');
-            const installBtn = document.getElementById('pwa-install-btn');
-            const dismissBtn = document.getElementById('pwa-dismiss-btn');
-            const msg = banner.querySelector('.pwa-msg');
+            const CALLOUT_KEY = 'pwa-callout-dismissed-v1';
+            const fab = document.getElementById('pwa-install-fab');
+            const callout = document.getElementById('pwa-install-callout');
+            const calloutText = callout.querySelector('.callout-text');
+            const closeBtn = document.getElementById('pwa-callout-close');
 
-            // Skip if already running as an installed PWA
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                 || window.navigator.standalone === true;
             if (isStandalone) return;
 
-            // Skip if previously dismissed
-            try { if (localStorage.getItem(DISMISS_KEY)) return; } catch (e) {}
-
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            let deferredPrompt = null;
+            let calloutWasDismissed = false;
+            try { calloutWasDismissed = !!localStorage.getItem(CALLOUT_KEY); } catch (e) {}
 
-            function showBanner() {
-                banner.style.display = 'block';
-                requestAnimationFrame(() => banner.classList.add('visible'));
-            }
-            function hideBanner(dismissPermanently) {
-                banner.classList.remove('visible');
-                setTimeout(() => { banner.style.display = 'none'; }, 450);
-                if (dismissPermanently) {
-                    try { localStorage.setItem(DISMISS_KEY, '1'); } catch (e) {}
+            function showFab() {
+                fab.classList.add('visible');
+                if (!calloutWasDismissed) {
+                    setTimeout(() => callout.classList.add('visible'), 500);
                 }
             }
-
-            let deferredPrompt = null;
+            function hideCallout(permanent) {
+                callout.classList.remove('visible');
+                if (permanent) {
+                    calloutWasDismissed = true;
+                    try { localStorage.setItem(CALLOUT_KEY, '1'); } catch (e) {}
+                }
+            }
+            function hideAll() {
+                fab.classList.remove('visible');
+                callout.classList.remove('visible');
+            }
 
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                showBanner();
+                showFab();
             });
 
-            installBtn.addEventListener('click', async () => {
+            fab.addEventListener('click', async () => {
                 if (deferredPrompt) {
+                    hideCallout(true);
                     deferredPrompt.prompt();
                     const choice = await deferredPrompt.userChoice;
                     deferredPrompt = null;
-                    if (choice && choice.outcome === 'accepted') hideBanner(true);
+                    if (choice && choice.outcome === 'accepted') hideAll();
                 } else if (isIOS) {
-                    msg.innerHTML = 'Tap the <strong>Share</strong> button at the bottom of Safari, scroll down, then tap <strong>"Add to Home Screen"</strong>.';
-                    installBtn.textContent = 'Got it';
-                    installBtn.onclick = () => hideBanner(true);
+                    calloutText.innerHTML = 'Tap <strong>Share</strong> at the bottom of Safari, then <strong>"Add to Home Screen"</strong>.';
+                    callout.classList.add('visible');
                 } else {
-                    msg.innerHTML = 'Open your browser menu and look for <strong>"Install app"</strong> or <strong>"Add to Home Screen"</strong>.';
-                    installBtn.textContent = 'Got it';
-                    installBtn.onclick = () => hideBanner(true);
+                    calloutText.innerHTML = 'Open the browser menu and tap <strong>"Install app"</strong> or <strong>"Add to Home Screen"</strong>.';
+                    callout.classList.add('visible');
                 }
             });
 
-            dismissBtn.addEventListener('click', () => hideBanner(true));
+            closeBtn.addEventListener('click', () => hideCallout(true));
 
             // iOS Safari never fires beforeinstallprompt, so reveal after a short delay
-            if (isIOS) setTimeout(showBanner, 2500);
+            if (isIOS) setTimeout(showFab, 1200);
 
-            // Hide if installed via the native OS flow
-            window.addEventListener('appinstalled', () => hideBanner(true));
+            window.addEventListener('appinstalled', hideAll);
         })();
     </script>
 </body>
