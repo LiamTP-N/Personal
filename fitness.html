@@ -804,7 +804,7 @@
             <div class="timer-top w-full flex justify-between items-start">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
                     <div id="hr-live-you" class="hr-badge-you hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl border"><div class="flex items-center" style="gap:0.3rem;"><svg class="hr-icon hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm-text hr-bpm font-black font-mono-display">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
-                    <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div><span id="surprise-count-hint" class="hidden round-label-text text-white/40 t-stroke" style="font-size:clamp(0.55rem,1.3dvh,0.8rem);letter-spacing:0.05em;"></span></div>
+                    <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div><span id="surprise-count-hint" class="hidden round-label-text text-white/80 t-stroke" style="font-size:clamp(0.95rem,2.2dvh,1.4rem);letter-spacing:0.05em;font-weight:700;"></span></div>
                 </div>
                 <div class="flex flex-col items-center justify-start" style="gap:0.5dvh;"><span id="session-type-badge" class="hidden ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 t-stroke-btn" style="white-space:nowrap;"></span></div>
                 <div class="flex flex-col items-end" style="gap:0.5dvh;">
@@ -2908,7 +2908,7 @@
             const youS=block==='b2'?(isEveryFor('you','b2')?settings.you.roundsB2:settings.you.surpriseCountB2):(isEveryFor('you','b1')?settings.you.rounds:settings.you.surpriseCount);
             const wifeS=isW?(block==='b2'?(isEveryFor('wife','b2')?settings.wife.roundsB2:settings.wife.surpriseCountB2):(isEveryFor('wife','b1')?settings.wife.rounds:settings.wife.surpriseCount)):0;
             const total=isW?youS+wifeS:youS;
-            if(total>0){el.textContent='+'+total+' \u2605';el.classList.remove('hidden');}else{el.classList.add('hidden');}
+            if(total>0){el.textContent='+'+total+'!?';el.classList.remove('hidden');}else{el.classList.add('hidden');}
         }
 
         // ── BLOCK HELPERS ───────────────────────────────────────────────────────
@@ -3035,12 +3035,30 @@
                 // transition. For solid 'speed' / 'power' the timer stays one colour;
                 // for the gradient patterns it interpolates start->end across the round.
                 session.currentEmphasisPattern=rd.emphasisPattern||null;
-                if(settings.blocks===2){ui.roundCur.innerText=absoluteRound;ui.roundTot.innerText=`${settings.rounds}+${settings.roundsB2}`;updateSurpriseHint(session.currentBlock===1?'b1':'b2');}else{ui.roundCur.innerText=absoluteRound;ui.roundTot.innerText=totalPlanRounds;updateSurpriseHint('b1');}
+                if(settings.blocks===2){
+                    // Block-relative numbers + a block label, so the user never has
+                    // to do mental math during a round. "Block 2: 3 / 7" reads cleanly.
+                    ui.roundCur.innerText=displayRound;
+                    ui.roundTot.innerText=currentBlockRounds();
+                    const _rlEl=document.getElementById('round-label');
+                    if(_rlEl)_rlEl.textContent='Block '+session.currentBlock;
+                    updateSurpriseHint(session.currentBlock===1?'b1':'b2');
+                }else{
+                    ui.roundCur.innerText=displayRound;
+                    ui.roundTot.innerText=totalPlanRounds;
+                    const _rlEl=document.getElementById('round-label');
+                    if(_rlEl)_rlEl.textContent='Rounds';
+                    updateSurpriseHint('b1');
+                }
                 setNextUp('');
                 // Background colour cue: green = user's work, purple = wife's work (Wife mode),
                 // plain green in Solo. Odd rounds = user, even = wife.
                 if(isW){ui.timerBg.className=(session.round%2!==0)?"bg-green-950":"bg-purple-950";}
-                else{ui.timerBg.className="bg-green-950";}
+                else{
+                    // Solo: green by default, purple if user identity is Ash so
+                    // the whole work phase carries her colour.
+                    ui.timerBg.className=document.body.classList.contains('user-ash')?"bg-purple-950":"bg-green-950";
+                }
                 speak(`Round ${absoluteRound}, ${rd.name}`);
             }
             else if(phase==='rest'){
@@ -4215,6 +4233,7 @@
                     window.history.replaceState({},'',window.location.pathname+window.location.hash);
                 }
                 function applyAshStyling(){
+                    document.body.classList.add('user-ash');
                     const greeting=document.getElementById('ash-greeting');
                     if(greeting)greeting.classList.remove('hidden');
                     const btn=document.getElementById('btn-home-boxing');
@@ -4234,6 +4253,7 @@
                     }
                 }
                 function revertAshStyling(){
+                    document.body.classList.remove('user-ash');
                     const greeting=document.getElementById('ash-greeting');
                     if(greeting)greeting.classList.add('hidden');
                     const btn=document.getElementById('btn-home-boxing');
