@@ -171,8 +171,8 @@
         .t-stroke-heavy{-webkit-text-stroke:6px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-btn{-webkit-text-stroke:2px rgba(0,0,0,1);paint-order:stroke fill;}
         #session-summary-line{overflow-wrap:break-word;word-break:break-word;}
-        #rest-info{overflow:hidden;}
-        #rest-info p{overflow-wrap:break-word;}
+        #rest-info{overflow:visible;}
+        #rest-info p{overflow-wrap:break-word;word-break:break-word;}
         /* Timer screen: safe bottom padding, never clips buttons */
         #timer-screen{
             height:100vh;height:100dvh;
@@ -539,7 +539,7 @@
             <div class="glass-card p-2 sm:p-2.5 rounded-2xl flex-shrink-0 mb-1.5">
                 <div class="flex items-center gap-3">
                     <div class="flex p-1 bg-slate-800/50 rounded-xl flex-shrink-0" role="group" aria-label="Training mode"><button id="mode-solo" aria-pressed="false" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">Solo</button><button id="mode-wife" aria-pressed="true" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white">Team</button></div>
-                    <div id="rest-info" class="flex-1 text-center bg-slate-800/30 p-1.5 rounded-lg border border-slate-700/30"><p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p></div>
+                    <div id="rest-info" class="flex-1 min-w-0 text-center bg-slate-800/30 p-1.5 rounded-lg border border-slate-700/30"><p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p></div>
                 </div>
                 <div id="hr-setup" class="hidden mt-3 pt-3 border-t border-slate-700/50">
                     <div class="flex items-center gap-2">
@@ -2590,7 +2590,7 @@
             cl.toggle('solo-wife'   ,isSolo&&!liamConnected&&ashConnected);
             if(isSolo){
                 if(!liamConnected&&ashConnected){
-                    ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest"><strong>Note:</strong> I'm so proud of you!</p><p class="text-[10px] sm:text-xs text-slate-400 break-words">Progressive rest. Starts at 30s, +5s per round.</p>`;
+                    ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest break-words"><strong>Note:</strong> I'm so proud of you!</p><p class="text-[10px] sm:text-xs text-slate-400 break-words">Progressive rest. Starts at 30s, +5s per round.</p>`;
                 }else{
                     ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
                 }
@@ -4196,13 +4196,13 @@
 
         // ── USER IDENTITY ──────────────────────────────────────────────────────────
         // Three states: 'liam' / 'ash' / null (unset). First visit on a phone
-        // shows a small picker on the home screen with two buttons; one tap
-        // persists the choice forever. Liam can pre-tap 'Ash' on her phone so
-        // she never sees the picker. URL escape hatches:
+        // shows a small picker on the home screen; one tap persists the choice.
+        // Long-press (800ms) the title or the greeting card to bring the picker
+        // back if the wrong name was tapped.
+        // URL escape hatches (each strips itself from the URL after taking effect):
         //   ?u=ash   - force Ash mode
         //   ?u=liam  - force Liam mode
         //   ?reset=1 - clear the flag and re-show the picker
-        // All three strip themselves from the URL after taking effect.
         (function(){
             try{
                 const params=new URLSearchParams(window.location.search);
@@ -4233,26 +4233,85 @@
                         }
                     }
                 }
+                function revertAshStyling(){
+                    const greeting=document.getElementById('ash-greeting');
+                    if(greeting)greeting.classList.add('hidden');
+                    const btn=document.getElementById('btn-home-boxing');
+                    if(btn){
+                        btn.classList.remove('hover:border-purple-500/30');
+                        btn.classList.add('hover:border-green-500/30');
+                        const iconWrap=btn.querySelector('div');
+                        if(iconWrap){
+                            iconWrap.classList.remove('bg-purple-600/20','border-purple-500/30');
+                            iconWrap.classList.add('bg-green-600/20','border-green-500/30');
+                        }
+                        const icon=btn.querySelector('svg');
+                        if(icon){
+                            icon.classList.remove('text-purple-400');
+                            icon.classList.add('text-green-400');
+                        }
+                    }
+                }
+                function showPicker(){
+                    const picker=document.getElementById('user-picker');
+                    if(picker)picker.classList.remove('hidden');
+                }
+                function resetIdentity(){
+                    try{haptic(150);}catch(e){}
+                    try{localStorage.removeItem('user');}catch(e){}
+                    revertAshStyling();
+                    showPicker();
+                }
+                // Picker buttons. Wired once and unconditionally so a later
+                // long-press reset can re-show the picker and these handlers
+                // still work without re-attachment.
+                const liamBtn=document.getElementById('picker-liam');
+                const ashBtn=document.getElementById('picker-ash');
+                const picker=document.getElementById('user-picker');
+                if(liamBtn)liamBtn.onclick=()=>{
+                    try{localStorage.setItem('user','liam');}catch(e){}
+                    if(picker)picker.classList.add('hidden');
+                    revertAshStyling();
+                };
+                if(ashBtn)ashBtn.onclick=()=>{
+                    try{localStorage.setItem('user','ash');}catch(e){}
+                    if(picker)picker.classList.add('hidden');
+                    applyAshStyling();
+                };
+                // Long-press detector. 800ms hold without movement triggers the
+                // callback. touchmove cancels so scroll gestures don't trigger.
+                function attachLongPress(el,callback,durationMs){
+                    if(!el)return;
+                    let timer=null;
+                    const start=()=>{
+                        if(timer)clearTimeout(timer);
+                        timer=setTimeout(()=>{timer=null;callback();},durationMs||800);
+                    };
+                    const cancel=()=>{
+                        if(timer){clearTimeout(timer);timer=null;}
+                    };
+                    el.addEventListener('touchstart',start,{passive:true});
+                    el.addEventListener('touchend',cancel,{passive:true});
+                    el.addEventListener('touchcancel',cancel,{passive:true});
+                    el.addEventListener('touchmove',cancel,{passive:true});
+                    el.addEventListener('mousedown',start);
+                    el.addEventListener('mouseup',cancel);
+                    el.addEventListener('mouseleave',cancel);
+                }
+                // Title wrapper and the Ash greeting card are both long-press
+                // targets for resetting identity. Title is always present so a
+                // Liam-tagged phone can still reset. Greeting card adds extra
+                // surface area when Ash is active.
+                const titleWrap=document.querySelector('#home-screen .text-center.mb-6');
+                attachLongPress(titleWrap,resetIdentity);
+                const greetingEl=document.getElementById('ash-greeting');
+                attachLongPress(greetingEl,resetIdentity);
+                // Apply initial state.
                 const user=localStorage.getItem('user');
                 if(user==='ash'){
                     applyAshStyling();
                 }else if(!user){
-                    // No identity set - show the one-time picker.
-                    const picker=document.getElementById('user-picker');
-                    if(picker){
-                        picker.classList.remove('hidden');
-                        const liamBtn=document.getElementById('picker-liam');
-                        const ashBtn=document.getElementById('picker-ash');
-                        if(liamBtn)liamBtn.onclick=()=>{
-                            localStorage.setItem('user','liam');
-                            picker.classList.add('hidden');
-                        };
-                        if(ashBtn)ashBtn.onclick=()=>{
-                            localStorage.setItem('user','ash');
-                            picker.classList.add('hidden');
-                            applyAshStyling();
-                        };
-                    }
+                    showPicker();
                 }
             }catch(e){
                 // localStorage unavailable (e.g. incognito). Silently default to Liam.
