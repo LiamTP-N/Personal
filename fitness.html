@@ -2908,7 +2908,7 @@
             const youS=block==='b2'?(isEveryFor('you','b2')?settings.you.roundsB2:settings.you.surpriseCountB2):(isEveryFor('you','b1')?settings.you.rounds:settings.you.surpriseCount);
             const wifeS=isW?(block==='b2'?(isEveryFor('wife','b2')?settings.wife.roundsB2:settings.wife.surpriseCountB2):(isEveryFor('wife','b1')?settings.wife.rounds:settings.wife.surpriseCount)):0;
             const total=isW?youS+wifeS:youS;
-            if(total>0){el.textContent='+'+total+'!?';el.classList.remove('hidden');}else{el.classList.add('hidden');}
+            if(total>0){el.textContent='+'+total+'"!?"';el.classList.remove('hidden');}else{el.classList.add('hidden');}
         }
 
         // ── BLOCK HELPERS ───────────────────────────────────────────────────────
