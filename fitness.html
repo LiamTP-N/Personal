@@ -73,6 +73,10 @@
         body.mode-solo.user-ash{--theme-color:#a855f7;--theme-shadow:rgba(168,85,247,0.4);}
         body.user-ash #mode-solo.bg-blue-600{background-color:rgb(168 85 247) !important;}
         body.user-ash.mode-solo #btn-hr-you{display:none !important;}
+        /* Mirror rule: on Liam's phone in Solo, Ash's HR button is hidden too -
+           team sessions always run on Liam's phone, so Solo on his phone means
+           he's alone and never needs her connect control. */
+        body.user-liam.mode-solo #btn-hr-wife{display:none !important;}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         body{font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior-y:contain;background-color:#000000;margin:0;-webkit-text-stroke:2px rgba(0,0,0,1);paint-order:stroke fill;}
         body.timer-running{overflow:hidden;}
@@ -4296,6 +4300,7 @@
                 }
                 function applyAshStyling(){
                     document.body.classList.add('user-ash');
+                    document.body.classList.remove('user-liam');
                     const greeting=document.getElementById('ash-greeting');
                     if(greeting)greeting.classList.remove('hidden');
                     // Home buttons themselves stay original (green/blue/red).
@@ -4341,6 +4346,7 @@
                     try{haptic(150);}catch(e){}
                     try{localStorage.removeItem('user');}catch(e){}
                     revertAshStyling();
+                    document.body.classList.remove('user-liam');
                     showPicker();
                 }
                 // Picker buttons. Wired once and unconditionally so a later
@@ -4353,6 +4359,7 @@
                     try{localStorage.setItem('user','liam');}catch(e){}
                     if(picker)picker.classList.add('hidden');
                     revertAshStyling();
+                    document.body.classList.add('user-liam');
                 };
                 if(ashBtn)ashBtn.onclick=()=>{
                     try{localStorage.setItem('user','ash');}catch(e){}
@@ -4391,6 +4398,8 @@
                 const user=localStorage.getItem('user');
                 if(user==='ash'){
                     applyAshStyling();
+                }else if(user==='liam'){
+                    document.body.classList.add('user-liam');
                 }else if(!user){
                     showPicker();
                 }
