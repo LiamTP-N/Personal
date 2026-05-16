@@ -559,6 +559,7 @@
             <div id="preset-desc-box" class="hidden glass-card p-3 rounded-2xl space-y-1.5">
                 <p id="preset-desc-title" class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider"></p>
                 <p id="preset-desc-text" class="text-[11px] sm:text-xs text-slate-300 leading-relaxed"></p>
+                <p class="text-[10px] sm:text-[11px] text-orange-300 italic pt-0.5">Tip: this session type can be tweaked to your liking below.</p>
             </div>
             <!-- PRESET TWEAKS PANEL: rendered dynamically per preset -->
             <div id="preset-tweaks-panel" class="hidden glass-card p-2 rounded-2xl space-y-1.5 overflow-x-hidden"></div>
@@ -2599,17 +2600,19 @@
         function emphasisStreak(plan){if(plan.length<2)return 0;const e=getEmphasis(plan[plan.length-1]);if(!e)return 0;let streak=1;for(let i=plan.length-2;i>=0;i--){if(getEmphasis(plan[i])===e)streak++;else break;}return streak;}
         // Build a plan of `numRounds` rounds. Greedy selection with progressively
         // relaxing constraints if the ideal candidate set is empty.
-        function buildPlan(numRounds){
+        function buildPlan(numRounds,isBlock2=false){
             const plan=[];const usedFamilies=new Set();
             if(settings.randomiseMiddle){
-                // kFL = "keep first/last": only when >6 rounds do we force the
-                // warm-up (round 1) and burnout (last round). Shorter sessions
-                // skip the fixed bookends - user typically wants all-work.
-                const kFL=numRounds>6;
+                // Warm-up rule: Block 1 ALWAYS opens with the warm-up round,
+                // regardless of total round count. Block 2 never does (the
+                // Block 1 warm-up still counts). Burnout rule: forced as the
+                // last round only when rounds>6 in either block.
+                const forceWarmUp=!isBlock2;
+                const forceBurnout=numRounds>6;
                 for(let i=0;i<numRounds;i++){
                     const isF=(i===0),isL=(i===numRounds-1);
-                    if(kFL&&isF){plan.push(PROGRAM_12_ROUNDS[0]);continue;}
-                    if(kFL&&isL){const last=PROGRAM_12_ROUNDS[11];plan.push(last);usedFamilies.add(last.family);continue;}
+                    if(forceWarmUp&&isF){plan.push(PROGRAM_12_ROUNDS[0]);continue;}
+                    if(forceBurnout&&isL){const last=PROGRAM_12_ROUNDS[11];plan.push(last);usedFamilies.add(last.family);continue;}
                     const prevCat=plan.length>0?plan[plan.length-1].cat:null;
                     const streak=emphasisStreak(plan);
                     // If we've hit the streak cap, exclude further rounds of the same emphasis.
@@ -2631,14 +2634,18 @@
                     plan.push(pick);usedFamilies.add(pick.family);
                 }
             }else{
-                // Fixed order: use PROGRAM_12_ROUNDS sequentially, wrapping if >12.
-                for(let i=0;i<numRounds;i++){plan.push(PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length]);}
+                // Fixed order: Block 1 starts at index 0 (the warm-up). Block 2
+                // skips the warm-up and starts at index 1 instead.
+                const startIdx=isBlock2?1:0;
+                for(let i=0;i<numRounds;i++){plan.push(PROGRAM_12_ROUNDS[(i+startIdx)%PROGRAM_12_ROUNDS.length]);}
             }
             // Hooks-only guarantee: if no hooks-family round made it into the plan,
             // swap a random middle slot for a hooks-only round from HOOKS_ONLY_ENTRIES.
             // When >6 rounds the fixed first/last slots are excluded.
             if(!plan.some(r=>r.family==='hooks')){
-                const s=numRounds>6?1:0,e=numRounds>6?numRounds-1:numRounds;
+                // Skip slot 0 only when Block 1 has a forced warm-up there.
+                // Skip last slot when burnout is forced (rounds>6).
+                const s=!isBlock2?1:0,e=numRounds>6?numRounds-1:numRounds;
                 if(e>s){
                     const slot=s+Math.floor(Math.random()*(e-s));
                     plan[slot]=HOOKS_ONLY_ENTRIES[Math.floor(Math.random()*HOOKS_ONLY_ENTRIES.length)];
@@ -2684,8 +2691,8 @@
         // After building, apply any preset-specific emphasis overrides (e.g. Blitz &
         // Burn: B1 = speed, B2 = power) so colour cues match what the description says.
         function generateSessionPlan(){
-            session.plan=buildPlan(settings.rounds);
-            session.planB2=settings.blocks===2?buildPlan(settings.roundsB2):[];
+            session.plan=buildPlan(settings.rounds,false);
+            session.planB2=settings.blocks===2?buildPlan(settings.roundsB2,true):[];
             const _pk=settings.sessionPreset;
             if(_pk&&_pk!=='custom'){
                 const _ov=(SESSION_PRESETS[_pk]||{}).emphasisOverride;
@@ -2696,7 +2703,22 @@
             }
             updatePreview();updateSessionSummary();
             const _cpill=document.querySelector('.session-type-pill[data-preset="custom"]');
-            if(_cpill){if(settings.sessionPreset==='custom'){const _r1=settings.you.rounds;const _r2=settings.blocks===2?settings.you.roundsB2:0;_cpill.textContent=settings.blocks===2?`${_r1}+${_r2}`:`${_r1} rnds`;}else{_cpill.textContent='Custom';}}
+            if(_cpill){
+                if(settings.sessionPreset==='custom'){
+                    // Team mode: Liam and Ash may have different counts, so a
+                    // single-figure pill is misleading. Keep it static. Solo:
+                    // show the count(s) as a quick at-a-glance summary.
+                    if(settings.mode==='wife'){
+                        _cpill.textContent='Custom';
+                    }else{
+                        const _r1=settings.you.rounds;
+                        const _r2=settings.blocks===2?settings.you.roundsB2:0;
+                        _cpill.textContent=settings.blocks===2?`${_r1}+${_r2}`:`${_r1} rnds`;
+                    }
+                }else{
+                    _cpill.textContent='Custom';
+                }
+            }
         }
 
         // ── SESSION SUMMARY STRIPE ──────────────────────────────────────────────
@@ -2845,9 +2867,12 @@
         // Excludes the first (index 0) and last (index total-1) rounds - no surprises
         // on warm-up or burnout. Pool size is `total-2`; if `count` exceeds that
         // we silently cap. UI limits count to 0-3 so this only matters if total<4.
-        function pickSurpriseIndices(count,total){
+        function pickSurpriseIndices(count,total,isBlock2=false){
+            // Exclude index 0 in Block 1 (warm-up is there); Block 2 has no
+            // warm-up so index 0 is fair game for a surprise burst.
             const pool=[];
-            for(let i=1;i<total-1;i++)pool.push(i);
+            const startIdx=isBlock2?0:1;
+            for(let i=startIdx;i<total-1;i++)pool.push(i);
             // Fisher-Yates shuffle.
             for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
             return new Set(pool.slice(0,Math.min(count,pool.length)));
@@ -3481,9 +3506,9 @@
             if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(rollSurprise('wife','b1'),settings.wife.rounds);session.surpriseTriggeredWife=new Set();}
             else{session.surpriseRoundsWife=new Set();session.surpriseTriggeredWife=new Set();}
             if(settings.blocks===2){
-                session.surpriseRoundsYouB2=pickSurpriseIndices(rollSurprise('you','b2'),settings.you.roundsB2);
+                session.surpriseRoundsYouB2=pickSurpriseIndices(rollSurprise('you','b2'),settings.you.roundsB2,true);
                 session.surpriseTriggeredYouB2=new Set();
-                if(settings.mode==='wife'){session.surpriseRoundsWifeB2=pickSurpriseIndices(rollSurprise('wife','b2'),settings.wife.roundsB2);session.surpriseTriggeredWifeB2=new Set();}
+                if(settings.mode==='wife'){session.surpriseRoundsWifeB2=pickSurpriseIndices(rollSurprise('wife','b2'),settings.wife.roundsB2,true);session.surpriseTriggeredWifeB2=new Set();}
                 else{session.surpriseRoundsWifeB2=new Set();session.surpriseTriggeredWifeB2=new Set();}
             }
             setPhase('ready');run();
@@ -4325,8 +4350,12 @@
 
             closeBtn.addEventListener('click', () => hideCallout(true));
 
-            // iOS Safari never fires beforeinstallprompt, so reveal after a short delay
-            if (isIOS) setTimeout(showFab, 1200);
+            // Show the FAB unconditionally after a brief delay so it's always
+            // available even if beforeinstallprompt never fires (some browsers
+            // suppress it, iOS Safari never sends it). Click handler falls back
+            // to platform-specific manual install instructions when no
+            // deferredPrompt has been captured.
+            setTimeout(showFab, 800);
 
             window.addEventListener('appinstalled', hideAll);
         })();
