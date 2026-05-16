@@ -4153,5 +4153,14 @@
         refreshPresetPills();
     });
     </script>
+    <script>
+        // Service worker registration. PWA install becomes available on supporting
+        // browsers; non-PWA browser visits are unaffected (no SW = normal fetch).
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW register failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>
