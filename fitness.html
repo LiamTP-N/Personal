@@ -1697,6 +1697,8 @@
         function showScreen(name){
             Object.values(screens).forEach(s=>{s.classList.add('hidden');s.style.display='';});
             screens[name].classList.remove('hidden');
+            // Mark the body so the PWA install FAB is hidden everywhere except home.
+            document.body.classList.toggle('screen-not-home',name!=='home');
             // gymWorkout uses flex layout - override any stale display from the reset above.
             if(name==='gymWorkout'){screens[name].style.display='flex';}
             // Ensure HR badges visibility matches current BLE connection state when entering the timer.
@@ -4276,6 +4278,11 @@
             padding: 0;
         }
         #pwa-callout-close:hover { background: rgba(0,0,0,0.12); color: #1e293b; }
+        /* The install button is only relevant on the home screen. showScreen()
+           toggles body.screen-not-home for every non-home screen; this rule hides
+           the FAB and its callout everywhere except home. */
+        body.screen-not-home #pwa-install-fab,
+        body.screen-not-home #pwa-install-callout { display: none !important; }
     </style>
     <button id="pwa-install-fab" type="button" aria-label="Install app">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
