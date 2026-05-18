@@ -3626,12 +3626,13 @@
         // Begin Session handler: check we have AT LEAST ONE working HR connection
         // with an actual reading (not just a device that's connected but silent).
         // If not, show the appropriate modal asking the user whether to proceed without HR data.
-        // In Solo mode, if only Ash is missing, show the specific "But Liam's HR..." message.
+        // In Solo mode, if Ash is the solo athlete (wifeReady but not youReady), show the
+        // specific "But Liam's HR..." message prompting her to reconsider.
         ui.btnStart.onclick=()=>{
             const youReady=hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected&&hrValueYou!==null;
             const wifeReady=hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected&&hrValueWife!==null;
             if(!youReady&&!wifeReady){hrModal.classList.remove('hidden');}
-            else if(settings.mode==='solo'&&youReady&&!wifeReady){ashHrModal.classList.remove('hidden');}
+            else if(settings.mode==='solo'&&wifeReady&&!youReady){ashHrModal.classList.remove('hidden');}
             else{startSession();}
         };
         // Quick Rest buttons: standalone rest timer at 1m/2m/3m. Repurposes the timer
